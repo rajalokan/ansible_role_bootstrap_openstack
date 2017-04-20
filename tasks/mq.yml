@@ -1,0 +1,10 @@
+---
+
+- name: Install rabbitmq-server
+  apt:
+    name: rabbitmq-server
+    state: installed
+
+- name: Add user for rabbitmq-server
+
+- name: give permission

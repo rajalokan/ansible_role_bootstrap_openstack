@@ -1,0 +1,16 @@
+---
+
+- name: Update cache
+  apt:
+    update_cache: yes
+    upgrade: yes
+
+- debug: var="ip"
+
+- name: Install `software-properties-common`
+
+- name: add repository
+
+- name: update and upgrade
+
+- name: Install `python-openstackclient`
