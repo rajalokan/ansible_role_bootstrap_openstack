@@ -1,2 +1,22 @@
 ---
 # handlers file for bootstrap_openstack
+
+- name: restart mysql
+  service:
+    name: mysql
+    state: restarted
+  become: yes
+  register: _restart
+  until: _restart | success
+  retries: 5
+  delay: 2
+
+- name: restart memcahced
+  service:
+    name: memcahced
+    state: restarted
+  become: yes
+  register: _restart
+  until: _restart | success
+  retries: 5
+  delay: 2

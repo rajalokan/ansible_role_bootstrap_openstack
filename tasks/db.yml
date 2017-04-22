@@ -1,14 +1,48 @@
 ---
 
-- name: Install mysql db packages
+- name: Check if MySQL is already installed.
+  stat: path=/etc/init.d/mysql
+  register: is_mysql_installed
+
+- name: Update apt cache if MySQL is not yet installed.
+  apt: update_cache=yes
+  when: is_mysql_installed.stat.exists == false
+
+- name: Ensure MySQL Python libraries are installed.
+  apt:
+    name: "{{ item }}"
+    state: installed
+  with_items:
+    - python-pymysql
+    - python-mysqldb
+
+- name: Install mysql packages
   apt:
     name: "{{ item }}"
     state: installed
   with_items:
     - mariadb-server
-    - python-mysql
+  register: mysql_install_info
 
-- name: configure mysql installation
+- name: Check if MySQL packages are being installed first time
+  set_fact:
+    mysql_first_time_installation: "{{ mysql_install_info is defined and mysql_install_info.changed }}"
+
+# Note: We do not use mysql_user for this operation, as it doesn't always update
+# the root password correctly. See: https://goo.gl/MSOejW
+- name: Update MySQL root password for localhost root account (< 5.7.x)
+  shell: >
+    mysql -NBe
+    'SET PASSWORD FOR "root"@"{{ item }}" = PASSWORD("{{ mysql_root_password }}");'
+  with_items:
+    - "{{ ansible_hostname }}"
+    - 127.0.0.1
+    - ::1
+    - localhost
+  when: (mysql_first_time_installation | bool)
+
+- name: configure mysql installation for openstack
+  template:
+    src: mysql_openstack.cnf
+    dest: /etc/mysql/conf.d/openstack.cnf
   notify: restart mysql
-
-- name:

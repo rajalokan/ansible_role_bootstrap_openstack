@@ -1,0 +1,11 @@
+---
+
+- name: Install `memcahced` package
+  apt:
+    name: "{{ item }}"
+    state: installed
+  with_items:
+    - memcached
+    - python-memcache
+  notify:
+    - restart memcahced

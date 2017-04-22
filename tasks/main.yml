@@ -1,8 +1,13 @@
 ---
 # tasks file for bootstrap_openstack
 
-- include: common.yml
-- include: db.yml
-- include: mq.yml
-- include: memcahced.yml
+# - include: common.yml
+#   become: yes
+# - include: db.yml
+#   become: yes
+# - include: mq.yml
+#   become: yes
+# - include: memcahced.yml
+#   become: yes
 - include: keystone.yml
+  become: yes

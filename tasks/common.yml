@@ -1,16 +1,25 @@
 ---
 
-- name: Update cache
+- name: Update cache and Upgrade all dist packages to latest
   apt:
     update_cache: yes
-    upgrade: yes
+    upgrade: dist
 
-- debug: var="ip"
+- name: Install packages needed for openstack setup
+  apt:
+    name: "{{ item }}"
+    state: installed
+  with_items:
+    - software-properties-common
+    - python-openstackclient
+    - ubuntu-cloud-keyring
 
-- name: Install `software-properties-common`
+- name: Add repo `mitaka`
+  apt_repository:
+    repo: "deb http://ubuntu-cloud.archive.canonical.com/ubuntu trusty-updates/mitaka main"
+    state: present
 
-- name: add repository
-
-- name: update and upgrade
-
-- name: Install `python-openstackclient`
+- name: update and upgrade after openstack cloud-archive
+  apt:
+    update_cache: yes
+    upgrade: dist
