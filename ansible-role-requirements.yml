@@ -1,0 +1,4 @@
+- name: plugins
+  scm: git
+  src: https://github.com/openstack/openstack-ansible-plugins.git
+  version: stable/mitaka
