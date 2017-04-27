@@ -1,13 +1,5 @@
 ---
 
-- name: Check if MySQL is already installed.
-  stat: path=/etc/init.d/mysql
-  register: is_mysql_installed
-
-- name: Update apt cache if MySQL is not yet installed.
-  apt: update_cache=yes
-  when: is_mysql_installed.stat.exists == false
-
 - name: Ensure MySQL Python libraries are installed.
   apt:
     name: "{{ item }}"
@@ -20,13 +12,9 @@
   apt:
     name: "{{ item }}"
     state: installed
-  with_items:
+  with_items:-
     - mariadb-server
   register: mysql_install_info
-
-- name: Check if MySQL packages are being installed first time
-  set_fact:
-    mysql_first_time_installation: "{{ mysql_install_info is defined and mysql_install_info.changed }}"
 
 # Note: We do not use mysql_user for this operation, as it doesn't always update
 # the root password correctly. See: https://goo.gl/MSOejW
@@ -39,7 +27,7 @@
     - 127.0.0.1
     - ::1
     - localhost
-  when: (mysql_first_time_installation | bool)
+  ignore_errors: true
 
 - name: configure mysql installation for openstack
   template:

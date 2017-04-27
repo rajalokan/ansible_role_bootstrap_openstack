@@ -1,5 +1,6 @@
 ---
 # defaults file for bootstrap_openstack
 
+password: rajalokan
 IP_ADDR: "{{ ansible_default_ipv4.address }}"
 mysql_root_password: rajalokan

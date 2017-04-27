@@ -11,9 +11,19 @@
   retries: 5
   delay: 2
 
-- name: restart memcahced
+- name: restart memcached
   service:
-    name: memcahced
+    name: memcached
+    state: restarted
+  become: yes
+  register: _restart
+  until: _restart | success
+  retries: 5
+  delay: 2
+
+- name: restart apache
+  service:
+    name: apache2
     state: restarted
   become: yes
   register: _restart

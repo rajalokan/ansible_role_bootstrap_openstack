@@ -8,4 +8,4 @@
     - memcached
     - python-memcache
   notify:
-    - restart memcahced
+    - restart memcached

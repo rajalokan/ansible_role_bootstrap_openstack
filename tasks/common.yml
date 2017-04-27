@@ -1,6 +1,6 @@
 ---
 
-- name: Update cache and Upgrade all dist packages to latest
+- name: Update cache & Upgrade all dist packages to latest
   apt:
     update_cache: yes
     upgrade: dist
@@ -19,7 +19,7 @@
     repo: "deb http://ubuntu-cloud.archive.canonical.com/ubuntu trusty-updates/mitaka main"
     state: present
 
-- name: update and upgrade after openstack cloud-archive
+- name: update & upgrade after openstack cloud-archive
   apt:
     update_cache: yes
     upgrade: dist

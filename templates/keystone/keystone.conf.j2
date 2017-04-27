@@ -3,7 +3,7 @@ log_dir = /var/log/keystone
 admin_token = 1234567890
 
 [database]
-connection = mysql+pymysql://keystone:rajalokan@localhost/keystone
+connection = mysql+pymysql://keystone:{{ mysql_root_password }}@localhost/keystone
 
 [token]
 provider = fernet
