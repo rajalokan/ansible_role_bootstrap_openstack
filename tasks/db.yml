@@ -4,17 +4,13 @@
   apt:
     name: "{{ item }}"
     state: installed
-  with_items:
-    - python-pymysql
-    - python-mysqldb
+  with_items: "{{ mysql_apt_python_libs }}"
 
 - name: Install mysql packages
   apt:
     name: "{{ item }}"
     state: installed
-  with_items:-
-    - mariadb-server
-  register: mysql_install_info
+  with_items: "{{ mysql_apt_packages }}"
 
 # Note: We do not use mysql_user for this operation, as it doesn't always update
 # the root password correctly. See: https://goo.gl/MSOejW

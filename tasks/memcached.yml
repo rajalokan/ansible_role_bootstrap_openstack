@@ -4,8 +4,6 @@
   apt:
     name: "{{ item }}"
     state: installed
-  with_items:
-    - memcached
-    - python-memcache
+  with_items: "{{ memcached_apt_packages }}"
   notify:
     - restart memcached

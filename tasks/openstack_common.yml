@@ -1,0 +1,23 @@
+---
+
+- name: Update cache
+  apt:
+    update_cache: yes
+  changed_when: false
+
+- name: Install packages needed for openstack setup
+  apt:
+    name: "{{ item }}"
+    state: installed
+  with_items: "{{ openstack_pre_packages }}"
+
+- name: Add repo `{{ openstack_release }}`
+  apt_repository:
+    repo: "{{ openstack_apt_repo }}"
+    state: present
+  register: _add_apt_repo
+
+- name: update cache again after adding openstack cloud-archive
+  apt:
+    update_cache: yes
+  when: "_add_apt_repo.changed | bool"

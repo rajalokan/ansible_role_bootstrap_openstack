@@ -1,7 +1,7 @@
 ---
 # tasks file for bootstrap_openstack
 
-- include: common.yml
+- include: openstack_common.yml
   become: yes
 
 - include: db.yml

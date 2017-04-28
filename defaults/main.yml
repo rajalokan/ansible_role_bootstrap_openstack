@@ -1,6 +1,80 @@
 ---
 # defaults file for bootstrap_openstack
 
-password: rajalokan
-IP_ADDR: "{{ ansible_default_ipv4.address }}"
+# General
+password: secret
+ip_addr: "{{ ansible_default_ipv4.address }}"
+
+# MySQL
+mysql_root_username: root
 mysql_root_password: rajalokan
+
+# Cloud Archive
+ubuntu_cloud_archive_url: http://ubuntu-cloud.archive.canonical.com/ubuntu
+
+# OpenStack Common
+openstack_release: 'mitaka'
+openstack_apt_repo: "deb {{ ubuntu_cloud_archive_url }} {{ ansible_distribution_release }}-updates/{{ openstack_release }} main"
+openstack_pre_packages:
+  - software-properties-common
+  - python-openstackclient
+  - ubuntu-cloud-keyring
+
+# MySQL
+mysql_apt_python_libs:
+  - python-pymysql
+  - python-mysqldb
+mysql_apt_packages:
+  - mariadb-server
+mysql_service_name: mysql
+
+# RabbitMQ
+rabbitmq_apt_packages:
+  - rabbitmq-server
+openstack_rabbitmq_username: openstack
+openstack_rabbitmq_password: "{{ password }}"
+
+# memcached
+memcached_apt_packages:
+  - memcached
+  - python-memcache
+
+# keystone
+keystone_system_user: keystone
+keystone_db_name: keystone
+keystone_db_username: keystone
+keystone_db_passsword: "{{ password }}"
+keystone_apt_packages:
+  - keystone
+  - apache2
+  - libapache2-mod-wsgi
+keystone_db_connection_string: "mysql+pymysql://{{ keystone_db_username}}:{{ keystone_db_passsword }}@localhost/{{ keystone_db_name }}"
+# Admin
+keystone_admin_token: 1234567890
+keystone_admin_username: admin
+keystone_admin_password: "{{ password }}"
+keystone_admin_project_name: admin
+# default
+keystone_identity_service_name: keystone
+keystone_default_region_id: RegionOne
+keystone_default_domain_name: "default"
+# keystone endpoints
+keystone_admin_endpoint: "http://{{ ip_addr }}:35357/v3/"
+keystone_internal_endpoint: "http://{{ ip_addr }}:5000/v3/"
+keystone_public_endpoint: "http://{{ ip_addr }}:5000/v3/"
+# service
+keystone_service_project_name: service
+keystone_service_project_description: Service Project
+# demo project
+keystone_demo_project_name: demo
+keystone_demo_project_description: Demo Project
+keystone_demo_user_name: demo
+keystone_demo_password: "{{ password }}"
+# role
+keystone_user_role_name: user
+# Others
+keystone_log_dir: /var/log/keystone
+
+keystone_service_tenant_name: service
+# keystone_service_description: Keystone Identity Service
+keystone_service_description: Service Project

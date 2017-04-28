@@ -1,19 +1,19 @@
 ---
 
-- name: Create database `keystone`
+- name: Create database `{{ keystone_db_name }}`
   mysql_db:
-    name: keystone
+    name: "{{ keystone_db_name }}"
     state: present
-    login_user: root
+    login_user: "{{ mysql_root_username }}"
     login_password: "{{ mysql_root_password }}"
 
-- name: create user `keystone`
+- name: create user `{{ keystone_db_username}}`
   mysql_user:
-    name: keystone
-    password: "{{ mysql_root_password }}"
-    priv: 'keystone.*:ALL'
+    name: "{{ keystone_db_username }}"
+    password: "{{ keystone_db_passsword }}"
+    priv: "{{ keystone_db_name }}.*:ALL"
     state: present
-    login_user: root
+    login_user: "{{ mysql_root_username }}"
     login_password: "{{ mysql_root_password }}"
     host: "{{ item }}"
   with_items:
@@ -21,16 +21,15 @@
     - "%"
 
 - name: Don't start keystone service after installation. Will be started through apache instead
-  shell: echo "manual" > /etc/init/keystone.override
+  copy:
+    src: keystone/keystone.override
+    dest: /etc/init/keystone.override
 
 - name: Install keystone and apache
   apt:
     name: "{{ item }}"
     state: installed
-  with_items:
-    - keystone
-    - apache2
-    - libapache2-mod-wsgi
+  with_items: "{{ keystone_apt_packages }}"
 
 - name: Use this keystone config
   template:
@@ -47,7 +46,7 @@
 
 - name: use this wsgi configuration
   template:
-    src: keystone/wsgi-keystone.conf
+    src: keystone/wsgi-keystone.conf.j2
     dest: /etc/apache2/sites-available/wsgi-keystone.conf
 
 - name: link to sites-enabled
@@ -61,14 +60,69 @@
 - name: Bootstrap `keystone` admin & endpoint
   command: |
     su -s /bin/sh -c "/usr/bin/keystone-manage bootstrap \
-    --bootstrap-username admin \
-    --bootstrap-password rajalokan \
-    --bootstrap-service-name keystone \
-    --bootstrap-region-id RegionOne \
-    --bootstrap-admin-url http://{{IP_ADDR}}:35357/v3/ \
-    --bootstrap-internal-url http://{{IP_ADDR}}:5000/v3 \
-    --bootstrap-public-url http://{{IP_ADDR}}:5000/v3" keystone
+    --bootstrap-username {{ keystone_admin_username }} \
+    --bootstrap-password {{ keystone_admin_password }} \
+    --bootstrap-project-name {{ keystone_admin_project_name }} \
+    --bootstrap-service-name {{ keystone_identity_service_name }} \
+    --bootstrap-region-id {{ keystone_default_region_id }} \
+    --bootstrap-admin-url {{ keystone_admin_endpoint }} \
+    --bootstrap-internal-url {{ keystone_internal_endpoint }} \
+    --bootstrap-public-url {{ keystone_public_endpoint }}" "{{ keystone_system_user }}"
   changed_when: false
+
+- name: Ensure `service` project is created
+  keystone:
+    command: ensure_project
+    endpoint: "{{ keystone_admin_endpoint }}"
+    login_user: "{{ keystone_admin_username }}"
+    login_password: "{{ keystone_admin_password }}"
+    login_project_name: "{{ keystone_admin_project_name }}"
+    project_name: "{{ keystone_service_project_name }}"
+    domain_name: "{{ keystone_default_domain_name }}"
+    description: "{{ keystone_service_project_description }}"
+
+- name: Ensure `demo` project is created
+  keystone:
+    command: ensure_project
+    endpoint: "{{ keystone_admin_endpoint }}"
+    login_user: "{{ keystone_admin_username }}"
+    login_password: "{{ keystone_admin_password }}"
+    login_project_name: "{{ keystone_admin_project_name }}"
+    project_name: "{{ keystone_demo_project_name }}"
+    domain_name: "{{ keystone_default_domain_name }}"
+    description: "{{ keystone_demo_project_description }}"
+
+- name: Ensure `demo` user is created
+  keystone:
+    command: ensure_user
+    endpoint: "{{ keystone_admin_endpoint }}"
+    login_user: "{{ keystone_admin_username }}"
+    login_password: "{{ keystone_admin_password }}"
+    login_project_name: "{{ keystone_admin_project_name }}"
+    user_name: "{{ keystone_demo_user_name }}"
+    password: "{{ keystone_demo_password }}"
+    project_name: "{{ keystone_service_project_name }}"
+    domain_name: "{{ keystone_default_domain_name }}"
+
+- name: Ensure `user` role is created
+  keystone:
+    command: ensure_role
+    endpoint: "{{ keystone_admin_endpoint }}"
+    login_user: "{{ keystone_admin_username }}"
+    login_password: "{{ keystone_admin_password }}"
+    login_project_name: "{{ keystone_admin_project_name }}"
+    role_name: "{{ keystone_user_role_name }}"
+
+- name: Ensure `demo` user is added to `user` role
+  keystone:
+    command: ensure_user_role
+    endpoint: "{{ keystone_admin_endpoint }}"
+    login_user: "{{ keystone_admin_username }}"
+    login_password: "{{ keystone_admin_password }}"
+    login_project_name: "{{ keystone_admin_project_name }}"
+    user_name: "{{ keystone_demo_user_name }}"
+    project_name: "{{ keystone_demo_project_name }}"
+    role_name: "{{ keystone_user_role_name }}"
 
 - name: Generate admin_openrc
   template:

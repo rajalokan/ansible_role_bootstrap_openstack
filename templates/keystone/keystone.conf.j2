@@ -1,9 +1,9 @@
 [DEFAULT]
-log_dir = /var/log/keystone
-admin_token = 1234567890
+log_dir = {{ keystone_log_dir }}
+admin_token = {{ keystone_admin_token }}
 
 [database]
-connection = mysql+pymysql://keystone:{{ mysql_root_password }}@localhost/keystone
+connection = {{ keystone_db_connection_string }}
 
 [token]
 provider = fernet

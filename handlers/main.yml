@@ -3,7 +3,7 @@
 
 - name: restart mysql
   service:
-    name: mysql
+    name: "{{ mysql_service_name }}"
     state: restarted
   become: yes
   register: _restart

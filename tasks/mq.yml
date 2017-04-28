@@ -2,13 +2,14 @@
 
 - name: Install rabbitmq-server
   apt:
-    name: rabbitmq-server
+    name: "{{ item }}"
     state: installed
+  with_items: "{{ rabbitmq_apt_packages }}"
 
 - name: Add user for rabbitmq-server
   rabbitmq_user:
-    user: openstack
-    password: rajalokan
+    user: "{{ openstack_rabbitmq_username }}"
+    password: "{{ openstack_rabbitmq_password }}"
     permissions:
       - vhost: /
         configure_priv: .*
