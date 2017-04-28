@@ -28,6 +28,9 @@ mysql_apt_packages:
   - mariadb-server
 mysql_service_name: mysql
 
+# apache
+apache_service_name: apache2
+
 # RabbitMQ
 rabbitmq_apt_packages:
   - rabbitmq-server
@@ -54,6 +57,8 @@ keystone_admin_token: 1234567890
 keystone_admin_username: admin
 keystone_admin_password: "{{ password }}"
 keystone_admin_project_name: admin
+keystone_admin_project_domain_name: default
+keystone_admin_user_domain_name: default
 # default
 keystone_identity_service_name: keystone
 keystone_default_region_id: RegionOne

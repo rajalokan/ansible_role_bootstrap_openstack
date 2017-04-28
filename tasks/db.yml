@@ -33,7 +33,6 @@
 
 - name: Restart mysql
   service:
-    name:
     name: "{{ mysql_service_name }}"
     state: restarted
   become: yes

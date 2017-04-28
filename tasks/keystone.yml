@@ -54,8 +54,18 @@
     src: /etc/apache2/sites-available/wsgi-keystone.conf
     dest: /etc/apache2/sites-enabled/wsgi-keystone.conf
     state: link
-  notify:
-    restart apache
+  register: _apache_sites_enabled
+
+- name: Restart apache
+  service:
+    name: "{{ apache_service_name }}"
+    state: restarted
+  become: yes
+  when: "_apache_sites_enabled.changed | bool"
+  register: _restart
+  until: _restart | success
+  retries: 5
+  delay: 2
 
 - name: Bootstrap `keystone` admin & endpoint
   command: |
@@ -77,6 +87,8 @@
     login_user: "{{ keystone_admin_username }}"
     login_password: "{{ keystone_admin_password }}"
     login_project_name: "{{ keystone_admin_project_name }}"
+    login_project_domain_name: "{{ keystone_admin_project_domain_name }}"
+    login_user_domain_name: "{{ keystone_admin_user_domain_name }}"
     project_name: "{{ keystone_service_project_name }}"
     domain_name: "{{ keystone_default_domain_name }}"
     description: "{{ keystone_service_project_description }}"
