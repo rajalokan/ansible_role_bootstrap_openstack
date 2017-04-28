@@ -29,4 +29,16 @@
   template:
     src: mysql_openstack.cnf
     dest: /etc/mysql/conf.d/openstack.cnf
-  notify: restart mysql
+  register: _mysql_os_config
+
+- name: Restart mysql
+  service:
+    name:
+    name: "{{ mysql_service_name }}"
+    state: restarted
+  become: yes
+  when: "_mysql_os_config.changed | bool"
+  register: _restart
+  until: _restart | success
+  retries: 5
+  delay: 2

@@ -21,3 +21,7 @@
   apt:
     update_cache: yes
   when: "_add_apt_repo.changed | bool"
+
+- name: Upgrade all packages to latest
+  apt:
+    upgrade: dist
